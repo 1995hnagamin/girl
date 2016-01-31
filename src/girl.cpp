@@ -5,6 +5,7 @@
 #include <boost/optional.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/program_options.hpp>
 #include <wordexp.h>
 #include "location.hpp"
 
@@ -42,6 +43,21 @@ boost::optional<Location> find_glossary(const boost::filesystem::path &glospath,
   return boost::none;
 }
 
+boost::optional<boost::filesystem::path> search_libpaths(const std::string &glossary, const std::vector<std::string> &libpaths) {
+  namespace fs = boost::filesystem;
+  for (std::string libpath : libpaths) {
+    for (fs::directory_iterator iter = fs::directory_iterator(libpath);
+        iter != fs::end(iter);
+        iter++) {
+      fs::path glospath(*iter);
+      if (glospath.filename() == glossary) {
+        return glospath;
+      }
+    }
+  }
+  return boost::none;
+}
+
 boost::optional<Location> find_library(const std::string &libpath, const std::string &target) {
   namespace fs = boost::filesystem;
   fs::path library(libpath);
@@ -52,6 +68,16 @@ boost::optional<Location> find_library(const std::string &libpath, const std::st
     boost::optional<Location> loc(find_glossary(glospath, target));
     if (loc) {
       return loc;
+    }
+  }
+  return boost::none;
+}
+
+boost::optional<Location> find_libraries(const std::vector<std::string> &libpaths, const std::string &target) {
+  for (std::string libpath : libpaths) {
+    boost::optional<Location> location(find_library(libpath, target));
+    if (location) {
+      return location;
     }
   }
   return boost::none;
@@ -84,25 +110,54 @@ std::vector<std::string> getEnvs(const char *key) {
 }
 
 int main(int argc, char **argv) {
-  if (argc < 2) {
+  namespace po = boost::program_options;
+  po::options_description options("commandline options");
+  options.add_options()
+    ("glossary,g", po::value<std::string>(), "specify glossary")
+    ("query", po::value<std::vector<std::string>>(), "word to search")
+  ;
+
+  po::positional_options_description pod;
+  pod.add("query", -1);
+  po::variables_map vm;
+  po::store(
+      po::command_line_parser(argc, argv)
+        .options(options)
+        .positional(pod)
+        .run(),
+      vm);
+  po::notify(vm);
+  boost::optional<std::string> glossary(boost::none);
+  if (vm.count("glossary")) {
+    glossary = vm["glossary"].as<std::string>();
+  }
+
+  if (!vm.count("query")) {
     std::string exec(argv[0]);
     std::cerr << "Usage: " + exec + " <word>" << std::endl;
     return 0;
   }
-  std::string target(argv[1]);
+  std::string target(vm["query"]
+      .as<std::vector<std::string>>()
+      [0]);
 
   std::vector<std::string> libpaths(getEnvs("GIRLPATH"));
-  bool found = false;
-  for (std::string libpath : libpaths) {
-    boost::optional<Location> location(find_library(libpath, target));
-    if (location) {
-      less(*location);
-      found = true;
-      break;
+  boost::optional<Location> location(boost::none);
+  if (glossary) {
+    boost::optional<boost::filesystem::path> glospath(search_libpaths(*glossary, libpaths));
+    if (glospath) {
+      location = find_glossary(*glospath, target);
+    } else {
+      std::cerr << "glossary not found: " << *glossary << std::endl;
+      return 0;
     }
+  } else {
+    location = find_libraries(libpaths, target);
   }
 
-  if (not found) {
+  if (location) {
+    less(*location);
+  } else {
     std::cerr << "not found: " + target << std::endl;
   }
 }
