@@ -44,7 +44,7 @@ Girlライブラリの実体はディレクトリである。
 
 # girl
 `girl`はGirlに登録された用語集を閲覧するためのコマンドである。
-    girl [-r glossery] word
+    girl [-r glossary] word
 
 # girl-update
 `girl-update`はGirlに登録された用語集をアップデートするコマンドである。
@@ -55,4 +55,4 @@ girl-updateは、gitで管理されているGirl用語集に対して`git pull`�
 
 # girl-grep
 `girl-grep`はGirlに登録された用語集を全文検索するコマンドである。
-    girl-grep [-r glossery] query
+    girl-grep [-r glossary] query
