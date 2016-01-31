@@ -1,17 +1,26 @@
 # girl
 
-Girl is an online document managner.
+Girl is an online glossaries managner.
+
+# Installation
+## 1. make
+execute following commands:
+
+    $ git clone https://github.com/1995hnagamin/girl.git
+    $ cd girl
+    $ cmake .
+    $ make
+    $ cp girl where/you/want/to/set
+
+## 2. set environment variable
+append following line to ~/.\*shrc:
+
+    export GIRLPATH=where/you/want/to/put/glossaries
 
 # Usage
 
-## Register documents repo
-
-    girl --register <repo>
-
-## Update documents
-
-    girl --update
-
 ## View document
 
-    girl <title>
+    girl <word>
+
+For more information, see doc/.
