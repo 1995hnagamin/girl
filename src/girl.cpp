@@ -16,7 +16,7 @@ boost::optional<Location> find_section(const boost::filesystem::path &filepath, 
 
   std::string query("# " + target);
   std::string row;
-  int row_number = 0;
+  int row_number = 1;
   while (std::getline(ifs, row)) {
     if (row == query) {
       return Location(filepath, row_number);
