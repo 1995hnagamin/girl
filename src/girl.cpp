@@ -7,8 +7,8 @@
 #include <wordexp.h>
 #include "location.hpp"
 
-boost::optional<Location> find_section(const std::string &filepath, const std::string &target) {
-  std::ifstream ifs(filepath.data());
+boost::optional<Location> find_section(const boost::filesystem::path &filepath, const std::string &target) {
+  std::ifstream ifs(filepath.string());
 
   if (ifs.fail()) {
     return boost::none;
@@ -22,6 +22,21 @@ boost::optional<Location> find_section(const std::string &filepath, const std::s
       return Location(filepath, row_number);
     }
     row_number++;
+  }
+  return boost::none;
+}
+
+boost::optional<Location> find_glossary(const std::string &glospath, const std::string &target) {
+  namespace fs = boost::filesystem;
+  fs::path glossary(glospath);
+  for (fs::recursive_directory_iterator iter = fs::recursive_directory_iterator(glossary);
+      iter != fs::end(iter);
+      iter++) {
+    fs::path filepath(*iter);
+    boost::optional<Location> loc(find_section(filepath, target));
+    if (loc) {
+      return loc;
+    }
   }
   return boost::none;
 }
@@ -52,9 +67,9 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  std::string filepath = expand_path("~/local/share/girl/girl.md");
+  std::string glossary = expand_path("~/local/share/girl/");
   std::string target(argv[1]);
-  boost::optional<Location> location(find_section(filepath, target));
+  boost::optional<Location> location(find_glossary(glossary, target));
 
   if (location) {
     less(*location);
