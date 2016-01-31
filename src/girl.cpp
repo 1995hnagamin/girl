@@ -26,14 +26,29 @@ boost::optional<Location> find_section(const boost::filesystem::path &filepath, 
   return boost::none;
 }
 
-boost::optional<Location> find_glossary(const std::string &glospath, const std::string &target) {
+boost::optional<Location> find_glossary(const boost::filesystem::path &glospath, const std::string &target) {
   namespace fs = boost::filesystem;
-  fs::path glossary(glospath);
+  fs::path glossary(glospath.string());
   for (fs::recursive_directory_iterator iter = fs::recursive_directory_iterator(glossary);
       iter != fs::end(iter);
       iter++) {
     fs::path filepath(*iter);
     boost::optional<Location> loc(find_section(filepath, target));
+    if (loc) {
+      return loc;
+    }
+  }
+  return boost::none;
+}
+
+boost::optional<Location> find_library(const std::string &libpath, const std::string &target) {
+  namespace fs = boost::filesystem;
+  fs::path library(libpath);
+  for (fs::directory_iterator iter = fs::directory_iterator(library);
+      iter != fs::end(iter);
+      iter++) {
+    fs::path glospath(*iter);
+    boost::optional<Location> loc(find_glossary(glospath, target));
     if (loc) {
       return loc;
     }
@@ -67,9 +82,9 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  std::string glossary = expand_path("~/local/share/girl/");
+  std::string libpath = expand_path("~/local/share/girl/");
   std::string target(argv[1]);
-  boost::optional<Location> location(find_glossary(glossary, target));
+  boost::optional<Location> location(find_library(libpath, target));
 
   if (location) {
     less(*location);
