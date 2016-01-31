@@ -5,6 +5,7 @@
 #include <boost/optional.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/program_options.hpp>
 #include <wordexp.h>
 #include "location.hpp"
 
@@ -84,6 +85,23 @@ std::vector<std::string> getEnvs(const char *key) {
 }
 
 int main(int argc, char **argv) {
+  namespace po = boost::program_options;
+  po::options_description options("commandline options");
+  options.add_options()
+    ("glossary,g", po::value<std::string>(), "specify glossary")
+  ;
+
+  po::variables_map values;
+  po::store(po::parse_command_line(argc, argv, options), values);
+  po::notify(values);
+  boost::optional<std::string> glossary(boost::none);
+  if (values.count("glossary")) {
+    glossary = values["glossary"].as<std::string>();
+  }
+
+  std::cout << argc << std::endl;
+  return 0;
+
   if (argc < 2) {
     std::string exec(argv[0]);
     std::cerr << "Usage: " + exec + " <word>" << std::endl;
