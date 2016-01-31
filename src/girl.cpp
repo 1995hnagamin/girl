@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <boost/optional.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 #include <wordexp.h>
 #include "location.hpp"
 
@@ -75,20 +76,33 @@ void less(Location l) {
   system(cmd.data());
 }
 
+std::vector<std::string> getEnvs(const char *key) {
+  std::string value(std::getenv(key));
+  std::vector<std::string> vec;
+  boost::algorithm::split(vec, value, boost::algorithm::is_any_of(":"));
+  return vec;
+}
+
 int main(int argc, char **argv) {
   if (argc < 2) {
     std::string exec(argv[0]);
     std::cerr << "Usage: " + exec + " <word>" << std::endl;
     return 0;
   }
-
-  std::string libpath = expand_path("~/local/share/girl/");
   std::string target(argv[1]);
-  boost::optional<Location> location(find_library(libpath, target));
 
-  if (location) {
-    less(*location);
-  } else {
+  std::vector<std::string> libpaths(getEnvs("GIRLPATH"));
+  bool found = false;
+  for (std::string libpath : libpaths) {
+    boost::optional<Location> location(find_library(libpath, target));
+    if (location) {
+      less(*location);
+      found = true;
+      break;
+    }
+  }
+
+  if (not found) {
     std::cerr << "not found: " + target << std::endl;
   }
 }
