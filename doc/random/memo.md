@@ -1,0 +1,56 @@
+# Girl
+Girlは端末で動くオンライン用語集システムである。
+Girlによって、複数の用語集を統一的に管理・閲覧することができる。
+Girlはいくつかのコマンドからなる:
+* girl
+* girl-update
+* girl-grep
+
+# Girl用語集
+Girl用語集はいくつかの用語を定義する。
+Girl用語集はいくつかのGirl文書を含んでおり、各Girl文書がいくつかの用語を定義している。
+各用語は、同じGirl用語集の中で2回以上定義されてはならない。
+
+各Girl用語集は一意の名前をもつ。名前は次の正規表現にマッチしなければならない:
+    [a-zA-Z0-9_-]
+ダウンロードしたGirl用語集の名前がシステム内で重複する場合、ユーザーは一意になるように名前を変更することができる。
+
+Girl用語集の実体は、Girl用語集の名前をディレクトリ名とするディレクトリである。
+各Girl文書はこのディレクトリの配下に(これはハードリンクを含むが、シンボリックリンクを含まない)あるMarkdownファイルである。
+
+# Girl文書
+Girl文書はいくつかの用語を定義する。
+
+Girl文書の実体は拡張子`.md`をもつMarkdownファイルである。
+各Girl文書のセクションは1つの用語を表す。
+例:
+    # 用語1
+    用語1の説明...
+    ## 用語1を説明するための小節
+    ### さらなる小節...
+
+    # 用語2
+    用語2の説明...
+
+# Girlpath
+GirlpathはいくつかのGirl用語集を保存するディレクトリである。
+Girlpathは複数存在することがある。
+
+Girlpathの実体は環境変数GIRLPATHである。
+
+# index.json
+
+# girl
+`girl`はGirlに登録された用語集を閲覧するためのコマンドである。
+    girl [-r glossery] word
+
+# girl-update
+`girl-update`はGirlに登録された用語集をアップデートするコマンドである。
+    girl-update
+
+girl-updateは、gitで管理されているGirl用語集に対して`git pull`を実行し、
+全てのGirl用語集に対してindex.jsonの生成を行う。
+
+# girl-grep
+`girl-grep`はGirlに登録された用語集を全文検索するコマンドである。
+    girl-grep [-r glossery] query
