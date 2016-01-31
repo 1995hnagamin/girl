@@ -4,17 +4,55 @@
 #include <cstdlib>
 #include <boost/optional.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 #include <wordexp.h>
+#include "location.hpp"
 
-boost::optional<int> find_section(std::ifstream &ifs, const std::string &target) {
+boost::optional<Location> find_section(const boost::filesystem::path &filepath, const std::string &target) {
+  std::ifstream ifs(filepath.string());
+
+  if (ifs.fail()) {
+    return boost::none;
+  }
+
   std::string query("# " + target);
   std::string row;
-  int row_number = 0;
+  int row_number = 1;
   while (std::getline(ifs, row)) {
     if (row == query) {
-      return row_number;
+      return Location(filepath, row_number);
     }
     row_number++;
+  }
+  return boost::none;
+}
+
+boost::optional<Location> find_glossary(const boost::filesystem::path &glospath, const std::string &target) {
+  namespace fs = boost::filesystem;
+  fs::path glossary(glospath.string());
+  for (fs::recursive_directory_iterator iter = fs::recursive_directory_iterator(glossary);
+      iter != fs::end(iter);
+      iter++) {
+    fs::path filepath(*iter);
+    boost::optional<Location> loc(find_section(filepath, target));
+    if (loc) {
+      return loc;
+    }
+  }
+  return boost::none;
+}
+
+boost::optional<Location> find_library(const std::string &libpath, const std::string &target) {
+  namespace fs = boost::filesystem;
+  fs::path library(libpath);
+  for (fs::directory_iterator iter = fs::directory_iterator(library);
+      iter != fs::end(iter);
+      iter++) {
+    fs::path glospath(*iter);
+    boost::optional<Location> loc(find_glossary(glospath, target));
+    if (loc) {
+      return loc;
+    }
   }
   return boost::none;
 }
@@ -31,28 +69,40 @@ std::string expand_path(std::string path) {
   throw;
 }
 
+void less(Location l) {
+  std::string cmd = "less";
+  cmd += " +" + std::to_string(l.get_row_number());
+  cmd += " " + l.get_path().string();
+  system(cmd.data());
+}
+
+std::vector<std::string> getEnvs(const char *key) {
+  std::string value(std::getenv(key));
+  std::vector<std::string> vec;
+  boost::algorithm::split(vec, value, boost::algorithm::is_any_of(":"));
+  return vec;
+}
+
 int main(int argc, char **argv) {
   if (argc < 2) {
     std::string exec(argv[0]);
     std::cerr << "Usage: " + exec + " <word>" << std::endl;
     return 0;
   }
-  std::string filepath = expand_path("~/local/share/girl/girl.md");
-  std::ifstream ifs(filepath.data());
+  std::string target(argv[1]);
 
-  if (ifs.fail()) {
-    std::cerr << "Error on opening " + filepath << std::endl;
-    return 0;
+  std::vector<std::string> libpaths(getEnvs("GIRLPATH"));
+  bool found = false;
+  for (std::string libpath : libpaths) {
+    boost::optional<Location> location(find_library(libpath, target));
+    if (location) {
+      less(*location);
+      found = true;
+      break;
+    }
   }
 
-  std::string target(argv[1]);
-  boost::optional<int> row_number(find_section(ifs, target));
-
-  if (row_number) {
-    std::string cmd = "less +" + std::to_string(*row_number) + " " + filepath;
-    system(cmd.data());
-    return 0;
-  } else {
+  if (not found) {
     std::cerr << "not found: " + target << std::endl;
   }
 }
