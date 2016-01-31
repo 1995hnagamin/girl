@@ -44,7 +44,11 @@ Girlライブラリの実体はディレクトリである。
 
 # girl
 `girl`はGirlに登録された用語集を閲覧するためのコマンドである。
-    girl [-r glossary] word
+    girl [-g=glossary] word
+
+## オプション
+### --glossary(-g)=STRING
+検索する用語集を名前で指定する。
 
 # girl-update
 `girl-update`はGirlに登録された用語集をアップデートするコマンドである。
