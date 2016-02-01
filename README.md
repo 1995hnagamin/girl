@@ -8,9 +8,15 @@ execute following commands:
 
     $ git clone https://github.com/1995hnagamin/girl.git
     $ cd girl
-    $ cmake .
+    $ mkdir build
+    $ cd build
+    $ cmake ../
     $ make
-    $ cp girl where/you/want/to/set
+    $ make install
+
+Default install path is /usr/local. To install them to another path,
+
+    $ cmake -DCMAKE_INSTALL_PREFIX=/where/you/want/to/install/ ..
 
 ## 2. set environment variable
 append following line to ~/.\*shrc:
