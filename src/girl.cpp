@@ -149,6 +149,13 @@ boost::optional<T> assoc(std::string option, boost::program_options::variables_m
   return vm[option].as<T>();
 }
 
+std::string concat_arguments(const std::vector<std::string> &args) {
+  return std::accumulate(args.begin(), args.end(), std::string(),
+      [](const std::string &x, const std::string y) {
+        return x.empty() ? y : x + " " + y;
+      });
+}
+
 int main(int argc, char **argv) {
   try {
     boost::program_options::variables_map vm(parse_commandline_arguments(argc, argv));
@@ -157,9 +164,7 @@ int main(int argc, char **argv) {
       std::cerr << "Usage: " + exec + " <word>" << std::endl;
       return 0;
     }
-    std::string target(vm["query"]
-        .as<std::vector<std::string>>()
-        [0]);
+    std::string target(concat_arguments(vm["query"].as<std::vector<std::string>>()));
     boost::optional<std::string> glossary(assoc<std::string>("glossary", vm));
     boost::optional<Location> location(find_target(glossary, getEnvs("GIRLPATH"), target));
     if (location) {
