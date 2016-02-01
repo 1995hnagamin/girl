@@ -13,8 +13,8 @@ class Location {
       path(p), row_number(r) {;}
     Location(boost::filesystem::path p, int r) :
       path(p), row_number(r) {;}
-    boost::filesystem::path get_path();
-    int get_row_number();
+    boost::filesystem::path get_path() const;
+    int get_row_number() const;
 };
 
 #endif

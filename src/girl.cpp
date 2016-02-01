@@ -83,7 +83,7 @@ boost::optional<Location> find_libraries(const std::vector<std::string> &libpath
   return boost::none;
 }
 
-std::string expand_path(std::string path) {
+std::string expand_path(const std::string &path) {
   wordexp_t p;
   int flags = 0;
   int expansion = wordexp(path.data(), &p, flags);
@@ -95,7 +95,7 @@ std::string expand_path(std::string path) {
   throw;
 }
 
-void less(Location l) {
+void less(const Location &l) {
   std::string cmd = "less";
   cmd += " +" + std::to_string(l.get_row_number());
   cmd += " " + l.get_path().string();
@@ -109,14 +109,25 @@ std::vector<std::string> getEnvs(const char *key) {
   return vec;
 }
 
-int main(int argc, char **argv) {
+boost::optional<Location> find_target(const boost::optional<std::string> &glossary, const std::vector<std::string> &libpaths, const std::string &target) {
+  if (!glossary) {
+    return find_libraries(libpaths, target);
+  }
+  boost::optional<boost::filesystem::path> glospath(search_libpaths(*glossary, libpaths));
+  if (!glospath) {
+    throw;
+    // return boost::none;
+  }
+  return find_glossary(*glospath, target);
+}
+
+boost::program_options::variables_map parse_commandline_arguments(int argc, char **argv) {
   namespace po = boost::program_options;
   po::options_description options("commandline options");
   options.add_options()
     ("glossary,g", po::value<std::string>(), "specify glossary")
     ("query", po::value<std::vector<std::string>>(), "word to search")
   ;
-
   po::positional_options_description pod;
   pod.add("query", -1);
   po::variables_map vm;
@@ -127,37 +138,42 @@ int main(int argc, char **argv) {
         .run(),
       vm);
   po::notify(vm);
-  boost::optional<std::string> glossary(boost::none);
-  if (vm.count("glossary")) {
-    glossary = vm["glossary"].as<std::string>();
-  }
+  return vm;
+}
 
-  if (!vm.count("query")) {
-    std::string exec(argv[0]);
-    std::cerr << "Usage: " + exec + " <word>" << std::endl;
-    return 0;
+template<typename T>
+boost::optional<T> assoc(const std::string &option, const boost::program_options::variables_map &vm) {
+  if (!vm.count(option)) {
+    return boost::none;
   }
-  std::string target(vm["query"]
-      .as<std::vector<std::string>>()
-      [0]);
+  return vm[option].as<T>();
+}
 
-  std::vector<std::string> libpaths(getEnvs("GIRLPATH"));
-  boost::optional<Location> location(boost::none);
-  if (glossary) {
-    boost::optional<boost::filesystem::path> glospath(search_libpaths(*glossary, libpaths));
-    if (glospath) {
-      location = find_glossary(*glospath, target);
-    } else {
-      std::cerr << "glossary not found: " << *glossary << std::endl;
+std::string concat_arguments(const std::vector<std::string> &args) {
+  return std::accumulate(args.begin(), args.end(), std::string(),
+      [](const std::string &x, const std::string y) {
+        return x.empty() ? y : x + " " + y;
+      });
+}
+
+int main(int argc, char **argv) {
+  try {
+    boost::program_options::variables_map vm(parse_commandline_arguments(argc, argv));
+    if (!vm.count("query")) {
+      std::string exec(argv[0]);
+      std::cerr << "Usage: " + exec + " <word>" << std::endl;
       return 0;
     }
-  } else {
-    location = find_libraries(libpaths, target);
+    std::string target(concat_arguments(vm["query"].as<std::vector<std::string>>()));
+    boost::optional<std::string> glossary(assoc<std::string>("glossary", vm));
+    boost::optional<Location> location(find_target(glossary, getEnvs("GIRLPATH"), target));
+    if (location) {
+      less(*location);
+    } else {
+      std::cerr << "not found: " + target << std::endl;
+    }
+  } catch (std::exception &e) {
+    std::cerr << e.what() << std::endl;
   }
-
-  if (location) {
-    less(*location);
-  } else {
-    std::cerr << "not found: " + target << std::endl;
-  }
+  return 0;
 }
