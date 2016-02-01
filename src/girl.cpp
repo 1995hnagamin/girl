@@ -83,7 +83,7 @@ boost::optional<Location> find_libraries(const std::vector<std::string> &libpath
   return boost::none;
 }
 
-std::string expand_path(std::string path) {
+std::string expand_path(const std::string &path) {
   wordexp_t p;
   int flags = 0;
   int expansion = wordexp(path.data(), &p, flags);
@@ -95,7 +95,7 @@ std::string expand_path(std::string path) {
   throw;
 }
 
-void less(Location l) {
+void less(const Location &l) {
   std::string cmd = "less";
   cmd += " +" + std::to_string(l.get_row_number());
   cmd += " " + l.get_path().string();
@@ -109,7 +109,7 @@ std::vector<std::string> getEnvs(const char *key) {
   return vec;
 }
 
-boost::optional<Location> find_target(boost::optional<std::string> glossary, std::vector<std::string> libpaths, std::string target) {
+boost::optional<Location> find_target(const boost::optional<std::string> &glossary, const std::vector<std::string> &libpaths, const std::string &target) {
   if (!glossary) {
     return find_libraries(libpaths, target);
   }
@@ -142,7 +142,7 @@ boost::program_options::variables_map parse_commandline_arguments(int argc, char
 }
 
 template<typename T>
-boost::optional<T> assoc(std::string option, boost::program_options::variables_map vm) {
+boost::optional<T> assoc(const std::string &option, const boost::program_options::variables_map &vm) {
   if (!vm.count(option)) {
     return boost::none;
   }
