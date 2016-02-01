@@ -121,7 +121,7 @@ boost::optional<Location> find_target(boost::optional<std::string> glossary, std
   return find_glossary(*glospath, target);
 }
 
-boost::program_options parse_commandline_arguments(int argc, char **argv) {
+boost::program_options::variables_map parse_commandline_arguments(int argc, char **argv) {
   namespace po = boost::program_options;
   po::options_description options("commandline options");
   options.add_options()
@@ -141,9 +141,17 @@ boost::program_options parse_commandline_arguments(int argc, char **argv) {
   return vm;
 }
 
+template<typename T>
+boost::optional<T> assoc(std::string option, boost::program_options::variables_map vm) {
+  if (!vm.count(option)) {
+    return boost::none;
+  }
+  return vm[option].as<T>();
+}
+
 int main(int argc, char **argv) {
   try {
-    boost::program_options vm(parse_commandline_arguments(argc, argv));
+    boost::program_options::variables_map vm(parse_commandline_arguments(argc, argv));
     if (!vm.count("query")) {
       std::string exec(argv[0]);
       std::cerr << "Usage: " + exec + " <word>" << std::endl;
@@ -153,10 +161,7 @@ int main(int argc, char **argv) {
         .as<std::vector<std::string>>()
         [0]);
 
-    boost::optional<std::string> glossary(boost::none);
-    if (vm.count("glossary")) {
-      glossary = vm["glossary"].as<std::string>();
-    }
+    boost::optional<std::string> glossary(assoc<std::string>("glossary", vm));
 
     std::vector<std::string> libpaths(getEnvs("GIRLPATH"));
     boost::optional<Location> location(find_target(glossary, libpaths, target));
@@ -165,7 +170,7 @@ int main(int argc, char **argv) {
     } else {
       std::cerr << "not found: " + target << std::endl;
     }
-  } catch (exception &e) {
+  } catch (std::exception &e) {
     std::cerr << e.what() << std::endl;
   }
   return 0;
