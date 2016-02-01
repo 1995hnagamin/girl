@@ -160,11 +160,8 @@ int main(int argc, char **argv) {
     std::string target(vm["query"]
         .as<std::vector<std::string>>()
         [0]);
-
     boost::optional<std::string> glossary(assoc<std::string>("glossary", vm));
-
-    std::vector<std::string> libpaths(getEnvs("GIRLPATH"));
-    boost::optional<Location> location(find_target(glossary, libpaths, target));
+    boost::optional<Location> location(find_target(glossary, getEnvs("GIRLPATH"), target));
     if (location) {
       less(*location);
     } else {
