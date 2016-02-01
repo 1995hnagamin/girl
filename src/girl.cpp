@@ -121,14 +121,13 @@ boost::optional<Location> find_target(boost::optional<std::string> glossary, std
   return find_glossary(*glospath, target);
 }
 
-int main(int argc, char **argv) {
+boost::program_options parse_commandline_arguments(int argc, char **argv) {
   namespace po = boost::program_options;
   po::options_description options("commandline options");
   options.add_options()
     ("glossary,g", po::value<std::string>(), "specify glossary")
     ("query", po::value<std::vector<std::string>>(), "word to search")
   ;
-
   po::positional_options_description pod;
   pod.add("query", -1);
   po::variables_map vm;
@@ -139,25 +138,35 @@ int main(int argc, char **argv) {
         .run(),
       vm);
   po::notify(vm);
-  boost::optional<std::string> glossary(boost::none);
-  if (vm.count("glossary")) {
-    glossary = vm["glossary"].as<std::string>();
-  }
+  return vm;
+}
 
-  if (!vm.count("query")) {
-    std::string exec(argv[0]);
-    std::cerr << "Usage: " + exec + " <word>" << std::endl;
-    return 0;
-  }
-  std::string target(vm["query"]
-      .as<std::vector<std::string>>()
-      [0]);
+int main(int argc, char **argv) {
+  try {
+    boost::program_options vm(parse_commandline_arguments(argc, argv));
+    if (!vm.count("query")) {
+      std::string exec(argv[0]);
+      std::cerr << "Usage: " + exec + " <word>" << std::endl;
+      return 0;
+    }
+    std::string target(vm["query"]
+        .as<std::vector<std::string>>()
+        [0]);
 
-  std::vector<std::string> libpaths(getEnvs("GIRLPATH"));
-  boost::optional<Location> location(find_target(glossary, libpaths, target));
-  if (location) {
-    less(*location);
-  } else {
-    std::cerr << "not found: " + target << std::endl;
+    boost::optional<std::string> glossary(boost::none);
+    if (vm.count("glossary")) {
+      glossary = vm["glossary"].as<std::string>();
+    }
+
+    std::vector<std::string> libpaths(getEnvs("GIRLPATH"));
+    boost::optional<Location> location(find_target(glossary, libpaths, target));
+    if (location) {
+      less(*location);
+    } else {
+      std::cerr << "not found: " + target << std::endl;
+    }
+  } catch (exception &e) {
+    std::cerr << e.what() << std::endl;
   }
+  return 0;
 }
