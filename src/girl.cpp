@@ -109,6 +109,18 @@ std::vector<std::string> getEnvs(const char *key) {
   return vec;
 }
 
+boost::optional<Location> find_target(boost::optional<std::string> glossary, std::vector<std::string> libpaths, std::string target) {
+  if (!glossary) {
+    return find_libraries(libpaths, target);
+  }
+  boost::optional<boost::filesystem::path> glospath(search_libpaths(*glossary, libpaths));
+  if (!glospath) {
+    throw;
+    // return boost::none;
+  }
+  return find_glossary(*glospath, target);
+}
+
 int main(int argc, char **argv) {
   namespace po = boost::program_options;
   po::options_description options("commandline options");
@@ -142,19 +154,7 @@ int main(int argc, char **argv) {
       [0]);
 
   std::vector<std::string> libpaths(getEnvs("GIRLPATH"));
-  boost::optional<Location> location(boost::none);
-  if (glossary) {
-    boost::optional<boost::filesystem::path> glospath(search_libpaths(*glossary, libpaths));
-    if (glospath) {
-      location = find_glossary(*glospath, target);
-    } else {
-      std::cerr << "glossary not found: " << *glossary << std::endl;
-      return 0;
-    }
-  } else {
-    location = find_libraries(libpaths, target);
-  }
-
+  boost::optional<Location> location(find_target(glossary, libpaths, target));
   if (location) {
     less(*location);
   } else {
