@@ -8,6 +8,7 @@
 #include <boost/program_options.hpp>
 #include <wordexp.h>
 #include "location.hpp"
+#include "glossary_iterator.hpp"
 
 boost::optional<Location> find_section(const boost::filesystem::path &filepath, const std::string &target) {
   std::ifstream ifs(filepath.string());
@@ -69,6 +70,16 @@ boost::optional<Location> find_library(const std::string &libpath, const std::st
     if (loc) {
       return loc;
     }
+  }
+  return boost::none;
+}
+
+boost::optional<Location> find_library(const boost::filesystem::path &libpath, const std::string &target) {
+  boost::filesystem::path library(libpath);
+  for (LibraryIterator iter(library);
+       iter != iter.end();
+       iter++) {
+    std::cout << "poe" << std::endl;
   }
   return boost::none;
 }
