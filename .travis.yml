@@ -11,7 +11,7 @@ addons:
     packages:
     - g++-4.8
     - boost1.55
-    - libboost-all-dev
+    - libboost1.55-all-dev
 install:
   - if [ "$CXX" = "g++" ]; then
        export CXX="g++-4.8";
