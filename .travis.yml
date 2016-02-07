@@ -2,16 +2,16 @@ language: cpp
 compiler:
   - gcc-4.8
   - clang
-sudo: false
+before_install:
+  - sudo add-apt-repository ppa:afrank/boost -y
+  - sudo apt-get update -q
+  - sudo apt-get install libboost1.57-all
 addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
-    - boost-latest
     packages:
     - g++-4.8
-    - boost1.55
-    - libboost1.55-all-dev
 install:
   - if [ "$CXX" = "g++" ]; then
        export CXX="g++-4.8";
