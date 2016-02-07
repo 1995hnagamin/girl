@@ -14,7 +14,7 @@ addons:
     - g++-5
 script:
   - if [ "$CXX" = "g++" ]; then
-       export CXX="g++-4.8";
+       export CXX="g++-5";
     fi
   - $CXX --version
   - mkdir build
