@@ -1,6 +1,12 @@
 #include "location.hpp"
 
-boost::filesystem::path Location::get_path() const {
+Location::Location(
+    const boost::filesystem::path& p,
+    int r) :
+  path(p),
+  row_number(r) {}
+
+const boost::filesystem::path& Location::get_path() const {
   return path;
 }
 
