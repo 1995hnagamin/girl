@@ -12,7 +12,7 @@ addons:
     - ubuntu-toolchain-r-test
     packages:
     - g++-4.8
-install:
+script:
   - if [ "$CXX" = "g++" ]; then
        export CXX="g++-4.8";
     fi
