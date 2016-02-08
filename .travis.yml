@@ -5,15 +5,11 @@ compiler:
 before_install:
   - sudo add-apt-repository ppa:afrank/boost -y
   - sudo apt-get update -q
-  - sudo apt-get install libboost1.57-all libboost1.57-all-dev
+  - sudo apt-get install g++-5 clang-3.6 libstdc++-5 libboost1.57-all-dev
 addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
-    packages:
-    - g++-5
-    - clang-3.6
-    - libstdc++-5
 script:
   - if [ "$CXX" = "g++" ]; then
        export CXX="g++-5";
