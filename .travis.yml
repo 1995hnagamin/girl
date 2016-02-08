@@ -1,7 +1,7 @@
 language: cpp
 compiler:
   - gcc-5
-  - clang
+  - clang-3.6
 before_install:
   - sudo add-apt-repository ppa:afrank/boost -y
   - sudo apt-get update -q
@@ -15,6 +15,12 @@ addons:
     - clang-3.6
     - libstdc++-5
 script:
+  - if [ "$CXX" = "g++" ]; then
+       export CXX="g++-5";
+    fi
+  - if [ "$CXX" = "clang++" ]; then
+       export CXX="clang++-3.6";
+    fi
   - $CXX --version
   - mkdir build
   - cd build
