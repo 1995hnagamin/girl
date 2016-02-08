@@ -1,20 +1,20 @@
 language: cpp
 compiler:
-  - gcc-5
+  - gcc-4.9
   - clang
 before_install:
-  - sudo add-apt-repository ppa:ostogvin/tjo-develop -y
+  - sudo add-apt-repository ppa:afrank/boost -y
   - sudo apt-get update -q
-  - sudo apt-get install boost1.58
+  - sudo apt-get install libboost1.57-all libboost1.57-all-dev
 addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
     packages:
-    - g++-5
+    - g++-4.9
 script:
   - if [ "$CXX" = "g++" ]; then
-       export CXX="g++-5";
+       export CXX="g++-4.9";
     fi
   - $CXX --version
   - mkdir build
