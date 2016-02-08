@@ -1,8 +1,0 @@
-add_library(location location.cpp)
-add_library(utils utils.cpp)
-set(Boost_USE_STATIC_LIBS ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
-find_package(Boost 1.58.0 COMPONENTS system filesystem program_options REQUIRED)
-if (Boost_FOUND)
-  target_link_libraries(utils ${Boost_LIBRARIES} location)
-endif()
