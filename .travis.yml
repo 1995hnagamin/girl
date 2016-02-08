@@ -7,17 +7,11 @@ compiler:
 before_install:
   - sudo add-apt-repository ppa:afrank/boost -y
   - sudo apt-get update -q
-  - sudo apt-get install libboost1.57-all-dev -y
+  - sudo apt-get install g++-4.9 clang-3.5 libclang-3.5-dev libgcc-4.8-dev libstdc++-4.8-dev libboost1.57-all-dev -y
 addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
-    package:
-    - g++-4.9
-    - clang-3.5
-    - libclang-3.5-dev
-    - libgcc-4.8-dev
-    - libstdc++-4.8-dev
 script:
   - if [ "$CXX" = "g++" ]; then
        export CXX="g++-4.9";
