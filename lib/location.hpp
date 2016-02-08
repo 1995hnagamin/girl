@@ -5,16 +5,15 @@
 #include <string>
 
 class Location {
+  public:
+    Location(
+        const boost::filesystem::path& p,
+        int r);
+    const boost::filesystem::path& get_path() const;
+    int get_row_number() const;
   private:
     boost::filesystem::path path;
     int row_number;
-  public:
-    Location(std::string p, int r) :
-      path(p), row_number(r) {;}
-    Location(boost::filesystem::path p, int r) :
-      path(p), row_number(r) {;}
-    boost::filesystem::path get_path() const;
-    int get_row_number() const;
 };
 
 #endif
