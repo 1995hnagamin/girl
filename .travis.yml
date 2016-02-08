@@ -7,6 +7,10 @@ compiler:
 before_install:
   - sudo add-apt-repository ppa:afrank/boost -y
   - sudo apt-get update -q
+  - apt-cache search g++
+  - apt-cache search clang
+  - apt-cache search libstdc++
+  - apt-cache search libboost
   - sudo apt-get install g++-5 clang-3.6 libstdc++-5 libboost1.57-all-dev
 addons:
   apt:
