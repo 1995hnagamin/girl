@@ -1,6 +1,6 @@
 language: cpp
 compiler:
-  - gcc-4.9
+  - gcc
   - clang
 before_install:
   - sudo add-apt-repository ppa:afrank/boost -y
@@ -11,11 +11,7 @@ addons:
     sources:
     - ubuntu-toolchain-r-test
     packages:
-    - g++-4.9
 script:
-  - if [ "$CXX" = "g++" ]; then
-       export CXX="g++-4.9";
-    fi
   - $CXX --version
   - mkdir build
   - cd build
