@@ -2,6 +2,7 @@
 *.a
 .*
 !.gitignore
+!.travis.yml
 
 # cmake
 CMakeCache.txt

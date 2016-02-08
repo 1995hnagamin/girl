@@ -8,7 +8,7 @@ set(CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
-find_package(Boost 1.58.0 COMPONENTS system filesystem program_options REQUIRED)
+find_package(Boost 1.46.0 COMPONENTS system filesystem program_options REQUIRED)
 
 message("Boost include dir:               " ${Boost_INCLUDE_DIR})
 message("Boost system libraries:          " ${Boost_SYSTEM_LIBRARIES})
