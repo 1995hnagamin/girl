@@ -1,6 +1,6 @@
 language: cpp
 compiler:
-  - gcc
+  - gcc-5
   - clang
 before_install:
   - sudo add-apt-repository ppa:afrank/boost -y
@@ -11,6 +11,9 @@ addons:
     sources:
     - ubuntu-toolchain-r-test
     packages:
+    - g++-5
+    - clang-3.6
+    - libstdc++-5
 script:
   - $CXX --version
   - mkdir build
