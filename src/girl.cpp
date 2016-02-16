@@ -95,17 +95,32 @@ std::string expand_path(const std::string &path) {
   throw;
 }
 
+boost::optional<std::string> get_env(const char *key) {
+  const char *value = std::getenv(key);
+  if (value) {
+    return std::string(value);
+  } else {
+    return boost::none;
+  }
+}
+
+boost::optional<std::string> get_env(std::string key) {
+  return get_env(key.c_str());
+}
+
 void less(const Location &l) {
-  std::string cmd = "less";
+  const boost::optional<std::string> pager(get_env("GIRLPAGER"));
+  std::string cmd(pager ? *pager : "less");
   cmd += " +" + std::to_string(l.get_row_number());
   cmd += " " + l.get_path().string();
   system(cmd.data());
 }
 
 std::vector<std::string> getEnvs(const char *key) {
-  std::string value(std::getenv(key));
+  const boost::optional<std::string> value(get_env(key));
+  std::string str(value ? *value : "");
   std::vector<std::string> vec;
-  boost::algorithm::split(vec, value, boost::algorithm::is_any_of(":"));
+  boost::algorithm::split(vec, str, boost::algorithm::is_any_of(":"));
   return vec;
 }
 
