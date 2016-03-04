@@ -1,4 +1,8 @@
-# Girl [![Build Status](https://travis-ci.org/1995hnagamin/girl.svg?branch=master)](https://travis-ci.org/1995hnagamin/girl)
+README
+======
+
+# Girl
+[![Build Status](https://travis-ci.org/1995hnagamin/girl.svg?branch=master)](https://travis-ci.org/1995hnagamin/girl)
 
 Girl is an online glossaries managner.
 

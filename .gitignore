@@ -3,6 +3,7 @@
 .*
 !.gitignore
 !.travis.yml
+index.html
 
 # cmake
 CMakeCache.txt
@@ -11,4 +12,6 @@ Makefile
 cmake_install.cmake
 /girl
 
+# automatically created files
 /build
+/doc/doxygen
