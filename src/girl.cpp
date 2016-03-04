@@ -2,12 +2,35 @@
 #include <iostream>
 #include <string>
 #include <cstdlib>
+#include <functional>
+#include <algorithm>
 #include <boost/optional.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/program_options.hpp>
 #include <wordexp.h>
 #include "location.hpp"
+
+bool does_contain_alias(const std::string &line, const std::string &alias) {
+  using namespace std::placeholders;
+  if (line.empty() || line[0] != '=') {
+    return false;
+  }
+  std::string aliasline(line.substr(1));
+  std::vector<std::string> aliases;
+  boost::algorithm::split(aliases, aliasline, boost::algorithm::is_any_of(","));
+  //return std::any_of(aliases.begin(), aliases.end(), std::bind(std::equal_to, _1, alias));
+  for (const std::string &str : aliases) { // XXX
+    if (str == alias) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool is_section_title(const std::string &line) {
+  return line.length() > 1 && line[0] == '#' && line[1] != '#';
+}
 
 boost::optional<Location> find_section(const boost::filesystem::path &filepath, const std::string &target) {
   std::ifstream ifs(filepath.string());
@@ -19,10 +42,15 @@ boost::optional<Location> find_section(const boost::filesystem::path &filepath, 
   std::string query("# " + target);
   std::string row;
   int row_number = 1;
+  bool is_previous_section = false; // whether previous line is section title ("# title...")
   while (std::getline(ifs, row)) {
     if (row == query) {
       return Location(filepath, row_number);
     }
+    if (is_previous_section && does_contain_alias(row, target)) {
+      return Location(filepath, row_number - 1);
+    }
+    is_previous_section = is_section_title(row);
     row_number++;
   }
   return boost::none;
