@@ -10,6 +10,7 @@
 #include <boost/program_options.hpp>
 #include <wordexp.h>
 #include "location.hpp"
+#include "glossary_iterator.hpp"
 
 bool does_contain_alias(const std::string &line, const std::string &alias) {
   using namespace std::placeholders;
@@ -97,6 +98,16 @@ boost::optional<Location> find_library(const std::string &libpath, const std::st
     if (loc) {
       return loc;
     }
+  }
+  return boost::none;
+}
+
+boost::optional<Location> find_library(const boost::filesystem::path &libpath, const std::string &target) {
+  boost::filesystem::path library(libpath);
+  for (LibraryIterator iter(library);
+       iter != iter.end();
+       iter++) {
+    std::cout << "poe" << std::endl;
   }
   return boost::none;
 }
