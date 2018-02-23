@@ -3,6 +3,7 @@
 #include <string>
 #include <cstdlib>
 #include <functional>
+#include <numeric>
 #include <algorithm>
 #include <boost/optional.hpp>
 #include <boost/filesystem.hpp>
