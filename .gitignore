@@ -3,6 +3,7 @@
 .*
 !.gitignore
 !.travis.yml
+!.clang-format
 *~
 index.html
 
